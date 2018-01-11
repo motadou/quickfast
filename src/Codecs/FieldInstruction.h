@@ -656,74 +656,71 @@ namespace QuickFAST{
 
     ///////////////////////////////
     // Template method definitions
-
     template<typename IntType>
-    void
-    FieldInstruction::decodeSignedInteger(
-      Codecs::DataSource & source,
-      Codecs::Context & context,
-      IntType & value,
-      const std::string & name,
-      bool oversize,
-      bool ignoreOverflow)
+    void FieldInstruction::decodeSignedInteger(Codecs::DataSource & source, Codecs::Context & context, IntType & value, const std::string & name, bool oversize, bool ignoreOverflow)
     {
-      PROFILE_POINT("decodeSignedInteger");
-      uchar byte = 0;
-      if(!source.getByte(byte))
-      {
-        context.reportFatal("[ERR U03]", "Unexpected end of data decoding signedinteger", name);
-      }
+        PROFILE_POINT("decodeSignedInteger");
+        uchar byte = 0;
+        if (!source.getByte(byte))
+        {
+            context.reportFatal("[ERR U03]", "Unexpected end of data decoding signedinteger", name);
+        }
 
-      value = 0;
-      // extend the sign bit
-      if((byte & signBit) != 0)
-      {
-        value = IntType(-1);
-      }
-      // Assume an 8 bit byte;
-      // Check the seven data bits and the sign bit to make sure no significant
-      // information is lost.
-      size_t shift = sizeof(IntType) * byteSize - (dataShift + 1);
-      IntType overflowMask(IntType(-1) << shift);
-      IntType overflowCheck(value << shift);
-      // if we're allowing oversize values ignore a sign bit overflow
-      if(oversize)
-      {
-        overflowMask <<= 1;
-        overflowCheck <<= 1;
-      }
-      while((byte & stopBit) == 0)
-      {
-        if(!ignoreOverflow && (value & overflowMask) != overflowCheck)
+        value = 0;
+        // extend the sign bit
+        if ((byte & signBit) != 0)
         {
-          context.reportError("[ERR D2]", "Integer Field overflow (signed).", name);
+            value = IntType(-1);
         }
+
+        // Assume an 8 bit byte;
+        // Check the seven data bits and the sign bit to make sure no significant
+        // information is lost.
+        size_t shift = sizeof(IntType) * byteSize - (dataShift + 1);
+        IntType overflowMask(IntType(-1) << shift);
+        IntType overflowCheck(value << shift);
+        // if we're allowing oversize values ignore a sign bit overflow
+        if (oversize)
+        {
+            overflowMask  <<= 1;
+            overflowCheck <<= 1;
+        }
+        
+        while ((byte & stopBit) == 0)
+        {
+            if (!ignoreOverflow && (value & overflowMask) != overflowCheck)
+            {
+                context.reportError("[ERR D2]", "Integer Field overflow (signed).", name);
+            }
+            value <<= dataShift;
+            value  |= byte;
+            if (!source.getByte(byte))
+            {
+                context.reportFatal("[ERR D2]", "Unexpected EOF in signed integer field.", name);
+            }
+        }
+
+        // include the last byte (the one with the stop bit)
+        if (!ignoreOverflow && (value & overflowMask) != overflowCheck)
+        {
+            context.reportError("[ERR D2]", "Signed Integer Field overflow.", name);
+        }
+
         value <<= dataShift;
-        value |= byte;
-        if(!source.getByte(byte))
-        {
-          context.reportFatal("[ERR D2]", "Unexpected EOF in signed integer field.", name);
-        }
-      }
-      // include the last byte (the one with the stop bit)
-      if(!ignoreOverflow && (value & overflowMask) != overflowCheck)
-      {
-        context.reportError("[ERR D2]", "Signed Integer Field overflow.", name);
-      }
-      value <<= dataShift;
-      value |= (byte & dataBits);
+        value  |= (byte & dataBits);
     }
 
+
     template<typename IntType>
-    bool
-    FieldInstruction::checkNullInteger(IntType & value)
+    bool FieldInstruction::checkNullInteger(IntType & value)
     {
-      bool isNull = (value == 0);
-      if(value > 0)
-      {
-        value -= 1;
-      }
-      return isNull;
+        bool isNull = (value == 0);
+        if (value > 0)
+        {
+            value -= 1;
+        }
+
+        return isNull;
     }
 
 #define INTEGER_SPECIALIZATION_NEEDS_DEBUGGING

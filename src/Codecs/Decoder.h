@@ -72,11 +72,7 @@ namespace QuickFAST{
       ///        in the input.
       /// @param[in] segment defines the expected fields [part of a template]
       /// @param[in] messageBuilder to which the decoded fields will be added
-      void decodeSegmentBody(
-        DataSource & source,
-        PresenceMap & pmap,
-        const SegmentBodyCPtr & segment,
-        Messages::ValueMessageBuilder & messageBuilder);
+        void decodeSegmentBody(DataSource & source, PresenceMap & pmap, const SegmentBodyCPtr & segment, Messages::ValueMessageBuilder & messageBuilder);
     };
   }
 }

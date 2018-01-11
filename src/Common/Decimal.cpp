@@ -19,26 +19,23 @@ Decimal::Decimal(
 {
 }
 
-Decimal::Decimal(const Decimal & rhs)
-: mantissa_(rhs.mantissa_)
-, exponent_(rhs.exponent_)
-, autoNormalize_(rhs.autoNormalize_)
+Decimal::Decimal(const Decimal & rhs) : mantissa_(rhs.mantissa_), exponent_(rhs.exponent_), autoNormalize_(rhs.autoNormalize_)
 {
+
 }
 
 Decimal::~Decimal()
 {
 }
 
-void
-Decimal::parse(const std::string & value)
+void Decimal::parse(const std::string & value)
 {
-  std::string str = value;
-  boost::algorithm::trim(str);
-  size_t dotPos = str.find(".");
-  std::string wholeString = str.substr(0,dotPos);
-  std::string fracString;
-  if(dotPos != std::string::npos)
+    std::string str = value;
+    boost::algorithm::trim(str);
+    size_t dotPos = str.find(".");
+    std::string wholeString = str.substr(0,dotPos);
+    std::string fracString;
+    if(dotPos != std::string::npos)
   {
     fracString = str.substr(dotPos+1);
   }
@@ -178,15 +175,14 @@ Decimal::operator = (const Decimal & rhs)
   return *this;
 }
 
-void
-Decimal::swap(Decimal & rhs)
+void Decimal::swap(Decimal & rhs)
 {
-  exponent_t texp = exponent_;
-  exponent_ = rhs.exponent_;
-  rhs.exponent_ = texp;
-  mantissa_t tman = mantissa_;
-  mantissa_ = rhs.mantissa_;
-  rhs.mantissa_ = tman;
+    exponent_t texp = exponent_;
+    exponent_ = rhs.exponent_;
+    rhs.exponent_ = texp;
+    mantissa_t tman = mantissa_;
+    mantissa_ = rhs.mantissa_;
+    rhs.mantissa_ = tman;
 }
 
 void
@@ -322,31 +318,29 @@ Decimal::operator double()const
   return double(double(mantissa_) * pow(10.0L, exponent_));
 }
 
-Decimal &
-Decimal::operator+=(const Decimal & rhs)
+Decimal & Decimal::operator+=(const Decimal & rhs)
 {
-  if(rhs.exponent_ < exponent_)
-  {
-    Decimal temp(*this);
-    temp.denormalize(rhs.exponent_);
-    temp.mantissa_ += rhs.mantissa_;
-    temp.normalize();
-    swap(temp);
-  }
-  else
-  {
-    Decimal temp(rhs);
-    temp.denormalize(exponent_);
-    temp.mantissa_ += mantissa_;
-    temp.normalize();
-    swap(temp);
-  }
-  return *this;
+    if (rhs.exponent_ < exponent_)
+    {
+        Decimal temp(*this);
+        temp.denormalize(rhs.exponent_);
+        temp.mantissa_ += rhs.mantissa_;
+        temp.normalize();
+        swap(temp);
+    }
+    else
+    {
+        Decimal temp(rhs);
+        temp.denormalize(exponent_);
+        temp.mantissa_ += mantissa_;
+        temp.normalize();
+        swap(temp);
+    }
+
+    return *this;
 }
 
-
-Decimal &
-Decimal::operator-=(const Decimal & rhs)
+Decimal & Decimal::operator-=(const Decimal & rhs)
 {
   if(rhs.exponent_ < exponent_)
   {

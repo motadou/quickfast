@@ -8,8 +8,8 @@
 #define DATASOURCESTREAM_H
 #include "DataSource.h"
 #include <Common/QuickFAST_Export.h>
-namespace QuickFAST{
-  namespace Codecs{
+namespace QuickFAST { namespace Codecs{
+
     /// A data source that reads input from an istream.
     class QuickFAST_Export DataSourceStream : public DataSource
     {

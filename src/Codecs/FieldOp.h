@@ -288,7 +288,7 @@ namespace QuickFAST{
       /// @returns a dictionary status indicating the results of the search
       Context::DictionaryStatus getDictionaryValue(Context & context, const unsigned char *& value, size_t &length)
       {
-        return context.getDictionaryValue(dictionaryIndex_, value, length);
+            return context.getDictionaryValue(dictionaryIndex_, value, length);
       }
 
       /// @brief Return the FieldOp type of this field

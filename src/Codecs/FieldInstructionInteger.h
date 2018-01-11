@@ -463,33 +463,33 @@ namespace QuickFAST{
       Codecs::Decoder & decoder,
       Messages::ValueMessageBuilder & builder) const
     {
-      PROFILE_POINT("int::decodeDelta");
-      int64 delta;
-      decodeSignedInteger(source, decoder, delta, identity_.name(), true);
-      if(!isMandatory())
-      {
-        if(checkNullInteger(delta))
+        PROFILE_POINT("int::decodeDelta");
+        int64 delta;
+        decodeSignedInteger(source, decoder, delta, identity_.name(), true);
+        if(!isMandatory())
         {
-          return; // nothing in Message; no change to saved value
+            if(checkNullInteger(delta))
+            {
+                return; // nothing in Message; no change to saved value
+            }
         }
-      }
-      INTEGER_TYPE value = typedValue_;
-      Context::DictionaryStatus previousStatus = fieldOp_->getDictionaryValue(decoder, value);
-      if(previousStatus == Context::UNDEFINED_VALUE)
-      {
-        if(fieldOp_->hasValue()) // initial value in field op?
+        
+        INTEGER_TYPE value = typedValue_;
+        Context::DictionaryStatus previousStatus = fieldOp_->getDictionaryValue(decoder, value);
+        if (previousStatus == Context::UNDEFINED_VALUE)
         {
-          value = typedValue_;
+            if(fieldOp_->hasValue()) // initial value in field op?
+            {
+                value = typedValue_;
+            }
         }
-      }
-      // Apply delta
-      value = INTEGER_TYPE(value + delta);
-      // Save the results
-      builder.addValue(
-        identity_,
-        VALUE_TYPE,
-        value);
-      fieldOp_->setDictionaryValue(decoder, value);
+        
+        // Apply delta
+        value = INTEGER_TYPE(value + delta);
+        // Save the results
+        builder.addValue(identity_, VALUE_TYPE, value);
+        
+        fieldOp_->setDictionaryValue(decoder, value);
     }
 
 

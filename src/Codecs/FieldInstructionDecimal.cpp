@@ -114,18 +114,14 @@ FieldInstructionDecimal::decodeConstant(
   Codecs::Decoder & /*decoder*/,
   Messages::ValueMessageBuilder & accessor) const
 {
-  PROFILE_POINT("decimal::decodeConstant");
-  if(isMandatory() || pmap.checkNextField())
-  {
-    accessor.addValue(
-      identity_,
-      ValueType::DECIMAL,
-      typedValue_);
-  }
+    PROFILE_POINT("decimal::decodeConstant");
+    if (isMandatory() || pmap.checkNextField())
+    {
+        accessor.addValue(identity_, ValueType::DECIMAL, typedValue_);
+    }
 }
 
-void
-FieldInstructionDecimal::decodeDefault(
+void FieldInstructionDecimal::decodeDefault(
   Codecs::DataSource & source,
   Codecs::PresenceMap & pmap,
   Codecs::Decoder & decoder,
@@ -245,50 +241,41 @@ FieldInstructionDecimal::decodeCopy(
   }
 }
 
-void
-FieldInstructionDecimal::decodeDelta(
-  Codecs::DataSource & source,
-  Codecs::PresenceMap & /*pmap*/,
-  Codecs::Decoder & decoder,
-  Messages::ValueMessageBuilder & accessor) const
-{
-  PROFILE_POINT("decimal::decodeDelta");
-  int64 exponentDelta;
-  decodeSignedInteger(source, decoder, exponentDelta, identity_.name(), true);
-  if(!isMandatory())
-  {
-    if(checkNullInteger(exponentDelta))
-    {
-      // nothing in Message; no change to saved value
-      return;
-    }
-  }
-  int64 mantissaDelta;
-  decodeSignedInteger(source, decoder, mantissaDelta, identity_.name(), true);
 
-  Decimal value(typedValue_);
-  (void)fieldOp_->getDictionaryValue(decoder, value);
-  value.setExponent(exponent_t(value.getExponent() + exponentDelta));
-  value.setMantissa(mantissa_t(value.getMantissa() + mantissaDelta));
-  accessor.addValue(
-    identity_,
-    ValueType::DECIMAL,
-    value);
-  fieldOp_->setDictionaryValue(decoder, value);
+void FieldInstructionDecimal::decodeDelta(Codecs::DataSource & source, Codecs::PresenceMap & /*pmap*/, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & accessor) const
+{
+    PROFILE_POINT("decimal::decodeDelta");
+    int64 exponentDelta;
+    decodeSignedInteger(source, decoder, exponentDelta, identity_.name(), true);
+    if (!isMandatory())
+    {
+        if (checkNullInteger(exponentDelta))
+        {
+            // nothing in Message; no change to saved value
+            return;
+        }
+    }
+
+    int64 mantissaDelta;
+    decodeSignedInteger(source, decoder, mantissaDelta, identity_.name(), true);
+
+    Decimal value(typedValue_);
+    (void)fieldOp_->getDictionaryValue(decoder, value);
+    value.setExponent(exponent_t(value.getExponent() + exponentDelta));
+    value.setMantissa(mantissa_t(value.getMantissa() + mantissaDelta));
+    accessor.addValue(identity_, ValueType::DECIMAL, value);
+    fieldOp_->setDictionaryValue(decoder, value);
 }
 
-void
-FieldInstructionDecimal::encodeNullableDecimal(
-  Codecs::DataDestination & destination,
-  WorkingBuffer & buffer,
-  exponent_t exponent,
-  mantissa_t mantissa) const
+
+void FieldInstructionDecimal::encodeNullableDecimal(Codecs::DataDestination & destination, WorkingBuffer & buffer, exponent_t exponent, mantissa_t mantissa) const
 {
-  if(exponent >= 0)
-  {
-    exponent += 1;
-  }
-  encodeDecimal(destination, buffer, exponent, mantissa);
+    if (exponent >= 0)
+    {
+        exponent += 1;
+    }
+
+    encodeDecimal(destination, buffer, exponent, mantissa);
 }
 
 void
@@ -590,7 +577,6 @@ FieldInstructionDecimal::interpretValue(const std::string & value)
   typedValueIsDefined_ = true;
   typedMantissa_ = typedValue_.getMantissa();
   typedExponent_ = typedValue_.getExponent();
-
 }
 
 void

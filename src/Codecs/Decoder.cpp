@@ -24,32 +24,30 @@ Decoder::Decoder(Codecs::TemplateRegistryPtr registry)
 //}
 
 
-void
-Decoder::decodeMessage(
-   DataSource & source,
-   Messages::ValueMessageBuilder & messageBuilder)
+void Decoder::decodeMessage(DataSource & source, Messages::ValueMessageBuilder & messageBuilder)
 {
-  PROFILE_POINT("decode");
-  source.beginMessage();
+    PROFILE_POINT("decode");
+    source.beginMessage();
 
-  Codecs::PresenceMap pmap(getTemplateRegistry()->presenceMapBits());
-  if(this->verboseOut_)
-  {
-    pmap.setVerbose(verboseOut_);
-  }
+    Codecs::PresenceMap pmap(getTemplateRegistry()->presenceMapBits());
+    if (this->verboseOut_)
+    {
+        pmap.setVerbose(verboseOut_);
+    }
 
-  static const std::string pmp("PMAP");
-  source.beginField(pmp);
-  pmap.decode(source);
+    static const std::string pmp("PMAP");
+    source.beginField(pmp);
+    pmap.decode(source);
 
-  static const std::string tid("templateID");
-  source.beginField(tid);
-  if(pmap.checkNextField())
-  {
-    template_id_t id;
-    FieldInstruction::decodeUnsignedInteger(source, *this, id, tid);
-    setTemplateId(id);
-  }
+    static const std::string tid("templateID");
+    source.beginField(tid);
+    if(pmap.checkNextField())
+    {
+        template_id_t id;
+        FieldInstruction::decodeUnsignedInteger(source, *this, id, tid);
+        setTemplateId(id);
+    }
+
   if(verboseOut_)
   {
     (*verboseOut_) << "Template ID: " << getTemplateId() << std::endl;
@@ -90,11 +88,7 @@ Decoder::decodeMessage(
   return;
 }
 
-void
-Decoder::decodeNestedTemplate(
-   DataSource & source,
-   Messages::ValueMessageBuilder & messageBuilder,
-   const Messages::FieldIdentity & identity)
+void Decoder::decodeNestedTemplate(DataSource & source, Messages::ValueMessageBuilder & messageBuilder, const Messages::FieldIdentity & identity)
 {
   Codecs::PresenceMap pmap(getTemplateRegistry()->presenceMapBits());
   if(this->verboseOut_)
@@ -167,23 +161,20 @@ Decoder::decodeGroup(
   decodeSegmentBody(source, pmap, group, messageBuilder);
 }
 
-void
-Decoder::decodeSegmentBody(
-  DataSource & source,
-  Codecs::PresenceMap & pmap,
-  const Codecs::SegmentBodyCPtr & segment,
-  Messages::ValueMessageBuilder & messageBuilder)
+void Decoder::decodeSegmentBody(DataSource & source,Codecs::PresenceMap & pmap, const Codecs::SegmentBodyCPtr & segment, Messages::ValueMessageBuilder & messageBuilder)
 {
-  size_t instructionCount = segment->size();
-  for( size_t nField = 0; nField < instructionCount; ++nField)
-  {
-    PROFILE_POINT("decode field");
-    const Codecs::FieldInstructionCPtr & instruction = segment->getInstruction(nField);
-    if(verboseOut_)
+    size_t instructionCount = segment->size();
+    for( size_t nField = 0; nField < instructionCount; ++nField)
     {
-      (*verboseOut_) <<std::endl << "Decode instruction[" <<nField << "]: " << instruction->getIdentity().name() << std::endl;
+        PROFILE_POINT("decode field");
+        const Codecs::FieldInstructionCPtr & instruction = segment->getInstruction(nField);
+        if(verboseOut_)
+        {
+            (*verboseOut_) <<std::endl << "Decode instruction[" <<nField << "]: " << instruction->getIdentity().name() << std::endl;
+        }
+
+        source.beginField(instruction->getIdentity().name());
+
+        (void)instruction->decode(source, pmap, *this, messageBuilder);
     }
-    source.beginField(instruction->getIdentity().name());
-    (void)instruction->decode(source, pmap, *this, messageBuilder);
-  }
 }

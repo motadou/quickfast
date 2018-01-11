@@ -11,41 +11,44 @@
 #include <Common/Types.h>
 #include <Codecs/DataSource_fwd.h>
 #include <Codecs/DataDestination_fwd.h>
-namespace QuickFAST{
-  namespace Codecs{
-    /// @brief The internal representation of a FAST Presence Map.
+
+namespace QuickFAST { namespace Codecs{
+
+/// @brief The internal representation of a FAST Presence Map.
+///
+/// One bit per conditionally present field.  See the FAST
+/// protocol documentation available from:
+/// http://www.fixprotocol.org/fast
+/// for details on when a presence map bit is used for a field.
+
+class QuickFAST_Export PresenceMap
+{
+    /// How many bytes can be stored in this object without allocating additional memory
+    /// Consider ways to optimize this after parsing templates.
+    const static size_t defaultByteCapacity_ = 20;
+
+public:
+    /// @brief Construct a presence map that may contain up to bitCount fields.
+    /// @param bitCount how many fields can be represented in the presence map.
+    PresenceMap(size_t bitCount);
+
+    /// @brief comparison operator requires bit-for-bit match
+    bool operator == (const PresenceMap &  rhs)const;
+
+    /// @brief Read a presence map from a data source.
+    /// @param source provides the data.
+    void decode(DataSource & source);
+
+    /// @brief Decode directly from a buffer which must be complete in memory.
     ///
-    /// One bit per conditionally present field.  See the FAST
-    /// protocol documentation available from:
-    /// http://www.fixprotocol.org/fast
-    /// for details on when a presence map bit is used for a field.
-    class QuickFAST_Export PresenceMap{
-      /// How many bytes can be stored in this object without allocating additional memory
-      /// Consider ways to optimize this after parsing templates.
-      const static size_t defaultByteCapacity_ = 20;
-    public:
-      /// @brief Construct a presence map that may contain up to bitCount fields.
-      /// @param bitCount how many fields can be represented in the presence map.
-      PresenceMap(size_t bitCount);
+    /// @param buffer points to a fast encoded buffer;
+    /// @param[in,out] pos is the position in the buffer. It will be updated to point beyond the presence map
+    void decode(const unsigned char * buffer, size_t &pos);
 
-      /// @brief comparison operator requires bit-for-bit match
-      bool operator == (const PresenceMap &  rhs)const;
-
-      /// @brief Read a presence map from a data source.
-      /// @param source provides the data.
-      void decode(DataSource & source);
-
-      /// @brief Decode directly from a buffer which must be complete in memory.
-      ///
-      /// @param buffer points to a fast encoded buffer;
-      /// @param[in,out] pos is the position in the buffer. It will be updated to point beyond the presence map
-      void decode(const unsigned char * buffer, size_t &pos);
-
-
-      /// @brief Return the number of bytes needed to encode this PMAP
-      ///
-      /// Zero means no pmap bits were used.
-      size_t encodeBytesNeeded()const;
+    /// @brief Return the number of bytes needed to encode this PMAP
+    ///
+    /// Zero means no pmap bits were used.
+    size_t encodeBytesNeeded()const;
 
       /// @brief Encode this presence map into a data destination.
       ///
@@ -126,7 +129,7 @@ namespace QuickFAST{
       boost::scoped_array<uchar> externalBuffer_;
       uchar * bits_;
       std::ostream * vout_;
-    };
+    };    
 
     inline
     void
@@ -156,9 +159,7 @@ namespace QuickFAST{
       }
     }
 
-    inline
-    bool
-    PresenceMap::checkNextField()
+    inline bool PresenceMap::checkNextField()
     {
       if(bytePosition_ >= byteCapacity_)
       {

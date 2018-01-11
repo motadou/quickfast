@@ -17,24 +17,20 @@ namespace QuickFAST{
   /// Values may be normalized or unnormalized.  The autonormalize flag
   /// determines whether normalization happens automatically after every operation.
   /// In a normalized value, the mantissa has no trailing zeros (base 10)
-  class QuickFAST_Export Decimal
-    : public boost::arithmetic<Decimal>
-    , public boost::totally_ordered<Decimal>
-  {
-  public:
-    /// @brief Construct a Decimal, defaulting to 0.0 autonormalized
-    explicit Decimal(
-      mantissa_t mantissa = 0,
-      exponent_t exponent = 0,
-      bool autoNormalize = true);
-    /// @brief Copy construct a decimal
-    Decimal(const Decimal & rhs);
-    /// @brief Destruct a decimal
-    ~Decimal();
-    /// @brief Parse a decimal value from a string
-    ///
-    /// Supports only www.fff format. [no explicit exponent]
-    void parse(const std::string & value);
+    class QuickFAST_Export Decimal : public boost::arithmetic<Decimal>, public boost::totally_ordered<Decimal>
+    {
+    public:
+        /// @brief Construct a Decimal, defaulting to 0.0 autonormalized
+        explicit Decimal(mantissa_t mantissa = 0, exponent_t exponent = 0, bool autoNormalize = true);
+
+        /// @brief Copy construct a decimal
+        Decimal(const Decimal & rhs);
+        /// @brief Destruct a decimal
+        ~Decimal();
+        /// @brief Parse a decimal value from a string
+        ///
+        /// Supports only www.fff format. [no explicit exponent]
+        void parse(const std::string & value);
     /// @brief Set the autonormalize flag.
     void setAutoNormalize(bool autoNormalize);
     /// @brief Set the mantissa directly

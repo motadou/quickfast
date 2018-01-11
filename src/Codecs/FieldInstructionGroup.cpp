@@ -12,23 +12,22 @@
 using namespace ::QuickFAST;
 using namespace ::QuickFAST::Codecs;
 
-FieldInstructionGroup::FieldInstructionGroup(
-  const std::string & name,
-  const std::string & fieldNamespace)
-  : FieldInstruction(name, fieldNamespace)
+FieldInstructionGroup::FieldInstructionGroup(const std::string & name, const std::string & fieldNamespace) : FieldInstruction(name, fieldNamespace)
 {
+
 }
 
 FieldInstructionGroup::FieldInstructionGroup()
 {
+
 }
 
 FieldInstructionGroup::~FieldInstructionGroup()
 {
+
 }
 
-void
-FieldInstructionGroup::finalize(TemplateRegistry & templateRegistry)
+void FieldInstructionGroup::finalize(TemplateRegistry & templateRegistry)
 {
   segmentBody_->finalize(templateRegistry);
   FieldInstruction::finalize(templateRegistry);
