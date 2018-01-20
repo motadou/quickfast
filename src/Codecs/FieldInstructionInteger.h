@@ -17,76 +17,54 @@
 
 #include <Common/Profiler.h>
 
-namespace QuickFAST{
-  namespace Codecs{
+namespace QuickFAST { namespace Codecs {
 
-    /// @brief A basic implementation for all integral types.
-    ///
-    /// Used for &lt;int32> &lt;uint32> &lt;int64> &lt;uint64> fields.
-    template<typename INTEGER_TYPE, ValueType::Type VALUE_TYPE, bool SIGNED>
-    class FieldInstructionInteger : public FieldInstruction
+/// @brief A basic implementation for all integral types.
+///
+/// Used for &lt;int32> &lt;uint32> &lt;int64> &lt;uint64> fields.
+template<typename INTEGER_TYPE, ValueType::Type VALUE_TYPE, bool SIGNED>
+class FieldInstructionInteger : public FieldInstruction
+{
+public:
+    /// @brief construct with a name and a namespace
+    /// @param name is the local name
+    /// @param fieldNamespace is the namespace to qualify this name
+    FieldInstructionInteger(const std::string & name, const std::string & fieldNamespace);
+
+    /// @brief construct anonomous field instruction
+    FieldInstructionInteger();
+
+    /// @brief a typical virtual destructor.
+    virtual ~FieldInstructionInteger();
+
+    virtual void interpretValue(const std::string & value);
+
+    /// @brief direct access for debugging
+    void setInitialValue(INTEGER_TYPE initialValue)
     {
-    public:
-      /// @brief construct with a name and a namespace
-      /// @param name is the local name
-      /// @param fieldNamespace is the namespace to qualify this name
-      FieldInstructionInteger(
-        const std::string & name,
-        const std::string & fieldNamespace);
-
-      /// @brief construct anonomous field instruction
-      FieldInstructionInteger();
-
-      /// @brief a typical virtual destructor.
-      virtual ~FieldInstructionInteger();
-
-      virtual void interpretValue(const std::string & value);
-
-      /// @brief direct access for debugging
-      void setInitialValue(INTEGER_TYPE initialValue)
-      {
         typedValue_ = initialValue;
-        typedValueIsDefined_ = true;
-      }
 
-      virtual void setDefaultValueIncrement()
-      {
+        typedValueIsDefined_ = true;
+    }
+
+    virtual void setDefaultValueIncrement()
+    {
         typedValue_ = INTEGER_TYPE(1);
+        
         typedValueIsDefined_ = true;
-      }
+    }
 
-      virtual void decodeNop(
-        Codecs::DataSource & source,
-        Codecs::PresenceMap & pmap,
-        Codecs::Decoder & decoder,
-        Messages::ValueMessageBuilder & builder) const;
+    virtual void decodeNop(Codecs::DataSource & source, Codecs::PresenceMap & pmap, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const;
 
-      virtual void decodeConstant(
-        Codecs::DataSource & source,
-        Codecs::PresenceMap & pmap,
-        Codecs::Decoder & decoder,
-        Messages::ValueMessageBuilder & builder) const;
+    virtual void decodeConstant(Codecs::DataSource & source, Codecs::PresenceMap & pmap, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const;
 
-      virtual void decodeDefault(
-        Codecs::DataSource & source,
-        Codecs::PresenceMap & pmap,
-        Codecs::Decoder & decoder,
-        Messages::ValueMessageBuilder & builder) const;
+    virtual void decodeDefault(Codecs::DataSource & source, Codecs::PresenceMap & pmap, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const;
 
-      virtual void decodeCopy(
-        Codecs::DataSource & source,
-        Codecs::PresenceMap & pmap,
-        Codecs::Decoder & decoder,
-        Messages::ValueMessageBuilder & builder) const;
+    virtual void decodeCopy(Codecs::DataSource & source, Codecs::PresenceMap & pmap, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const;
 
-      virtual void decodeCopy(
-        Codecs::DataSource & source,
-        bool pmapValue,
-        Codecs::Decoder & decoder,
-        Messages::ValueMessageBuilder & builder) const;
+    virtual void decodeCopy(Codecs::DataSource & source, bool pmapValue, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const;
 
-      virtual void decodeDelta(
-        Codecs::DataSource & source,
+    virtual void decodeDelta(Codecs::DataSource & source,
         Codecs::PresenceMap & pmap,
         Codecs::Decoder & decoder,
         Messages::ValueMessageBuilder & builder) const;
@@ -276,65 +254,48 @@ namespace QuickFAST{
     }
 
     template<typename INTEGER_TYPE, ValueType::Type VALUE_TYPE, bool SIGNED>
-    void
-    FieldInstructionInteger<INTEGER_TYPE, VALUE_TYPE, SIGNED>::
-    decodeCopy(
-      Codecs::DataSource & source,
-      Codecs::PresenceMap & pmap,
-      Codecs::Decoder & decoder,
-      Messages::ValueMessageBuilder & builder) const
+    void FieldInstructionInteger<INTEGER_TYPE, VALUE_TYPE, SIGNED>::decodeCopy(Codecs::DataSource & source, Codecs::PresenceMap & pmap, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const
     {
-      decodeCopy(source, pmap.checkNextField(), decoder, builder);
+        decodeCopy(source, pmap.checkNextField(), decoder, builder);
     }
 
     template<typename INTEGER_TYPE, ValueType::Type VALUE_TYPE, bool SIGNED>
-    void
-    FieldInstructionInteger<INTEGER_TYPE, VALUE_TYPE, SIGNED>::
-    decodeCopy(
-        Codecs::DataSource & source,
-        bool pmapValue,
-        Codecs::Decoder & decoder,
-        Messages::ValueMessageBuilder & builder) const
+    void FieldInstructionInteger<INTEGER_TYPE, VALUE_TYPE, SIGNED>::decodeCopy(Codecs::DataSource & source, bool pmapValue, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const
     {
-      PROFILE_POINT("int::decodeCopy");
-      if(pmapValue)
-      {
-        INTEGER_TYPE value = typedValue_;
-        // present in stream
-        if(SIGNED) // expect compile-time optimization here
+        PROFILE_POINT("int::decodeCopy");
+        
+        if (pmapValue)
         {
-          decodeSignedInteger(source, decoder, value, identity_.name(), false, ignoreOverflow_);
-        }
-        else
-        {
-          decodeUnsignedInteger(source, decoder, value, identity_.name(), ignoreOverflow_);
-        }
+            INTEGER_TYPE value = typedValue_;
+            // present in stream
+            if (SIGNED) // expect compile-time optimization here
+            {
+                decodeSignedInteger(source, decoder, value, identity_.name(), false, ignoreOverflow_);
+            }
+            else
+            {
+                decodeUnsignedInteger(source, decoder, value, identity_.name(), ignoreOverflow_);
+            }
 
-        if(isMandatory())
-        {
-          builder.addValue(
-            identity_,
-            VALUE_TYPE,
-            value);
-          fieldOp_->setDictionaryValue(decoder, value);
-        }
-        else
-        {
-          // not mandatory means it's nullable
-          if(checkNullInteger(value))
-          {
-            fieldOp_->setDictionaryValueNull(decoder);
-          }
-          else
-          {
-            builder.addValue(
-              identity_,
-              VALUE_TYPE,
-              value);
-            fieldOp_->setDictionaryValue(decoder, value);
-          }
-        }
-
+            if (isMandatory())
+            {
+                builder.addValue(identity_, VALUE_TYPE, value);
+                
+                fieldOp_->setDictionaryValue(decoder, value);
+            }
+            else
+            {
+                // not mandatory means it's nullable
+                if (checkNullInteger(value))
+                {
+                    fieldOp_->setDictionaryValueNull(decoder);
+                }
+                else
+                {
+                    builder.addValue(identity_, VALUE_TYPE, value);
+                    fieldOp_->setDictionaryValue(decoder, value);
+                }
+            }
       }
       else // pmap says not present, use copy
       {
@@ -411,18 +372,16 @@ namespace QuickFAST{
         INTEGER_TYPE value = 0;
         if(SIGNED)
         {
-          decodeSignedInteger(source, decoder, value, identity_.name(), false,  ignoreOverflow_);
+            decodeSignedInteger(source, decoder, value, identity_.name(), false,  ignoreOverflow_);
         }
         else
         {
-          decodeUnsignedInteger(source, decoder, value, identity_.name(), ignoreOverflow_);
+            decodeUnsignedInteger(source, decoder, value, identity_.name(), ignoreOverflow_);
         }
-        if(isMandatory())
+
+        if (isMandatory())
         {
-          builder.addValue(
-            identity_,
-            VALUE_TYPE,
-            value);
+            builder.addValue(identity_, VALUE_TYPE, value);
         }
         else
         {

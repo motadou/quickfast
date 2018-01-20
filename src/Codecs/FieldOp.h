@@ -171,7 +171,7 @@ namespace QuickFAST{
       /// @param context holds the dictionary
       void setDictionaryValueNull(Context & context)
       {
-        context.setDictionaryValueNull(dictionaryIndex_);
+            context.setDictionaryValueNull(dictionaryIndex_);
       }
 
       /// @brief set the value of the dictionary entry for this field

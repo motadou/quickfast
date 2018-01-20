@@ -606,7 +606,7 @@ namespace QuickFAST{
       /// @brief how many presence map bits are used by this field instruction?
       size_t getPresenceMapBitsUsed() const
       {
-        return presenceMapBitsUsed_;
+            return presenceMapBitsUsed_;
       }
 
       /// @brief Write the fieldInstruction in human readable form.
@@ -652,9 +652,9 @@ namespace QuickFAST{
       bool mandatory_;
       /// True if overflows in the integer field should be ignored (settable via XML)
       bool ignoreOverflow_;
-    };
+};
 
-    ///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
     // Template method definitions
     template<typename IntType>
     void FieldInstruction::decodeSignedInteger(Codecs::DataSource & source, Codecs::Context & context, IntType & value, const std::string & name, bool oversize, bool ignoreOverflow)
@@ -710,18 +710,17 @@ namespace QuickFAST{
         value  |= (byte & dataBits);
     }
 
-
-    template<typename IntType>
-    bool FieldInstruction::checkNullInteger(IntType & value)
+template<typename IntType>
+bool FieldInstruction::checkNullInteger(IntType & value)
+{
+    bool isNull = (value == 0);
+    if (value > 0)
     {
-        bool isNull = (value == 0);
-        if (value > 0)
-        {
-            value -= 1;
-        }
-
-        return isNull;
+        value -= 1;
     }
+
+    return isNull;
+}
 
 #define INTEGER_SPECIALIZATION_NEEDS_DEBUGGING
 #ifdef INTEGER_SPECIALIZATION
@@ -999,50 +998,49 @@ namespace QuickFAST{
 #endif // INTEGER_SPECIALIZATION
 
     template<typename UnsignedIntType>
-    void
-    FieldInstruction::decodeUnsignedInteger(
-      Codecs::DataSource & source,
-      Codecs::Context & context,
-      UnsignedIntType & value,
-      const std::string & name,
-      bool ignoreOverflow)
+    void FieldInstruction::decodeUnsignedInteger(Codecs::DataSource & source, Codecs::Context & context, UnsignedIntType & value, const std::string & name, bool ignoreOverflow)
     {
-      PROFILE_POINT("decodeUnsignedInteger");
-      uchar byte = 0;
-      if(!source.getByte(byte))
-      {
-        context.reportFatal("[ERR U03]", "Unexpected end of data decoding unsigned integer", name);
-      }
+        PROFILE_POINT("decodeUnsignedInteger");
+        uchar byte = 0;
+        
+        if (!source.getByte(byte))
+        {
+            context.reportFatal("[ERR U03]", "Unexpected end of data decoding unsigned integer", name);
+        }
 
-      value = 0;
+        value = 0;
 
-      // Assume an 8 bit byte;
-      // Check the seven data bitsbit to make sure no significant
-      // information is lost.
-      unsigned short shift = ((sizeof(UnsignedIntType) * byteSize) / dataShift) * dataShift;
-      UnsignedIntType overflowMask(UnsignedIntType(-1) << shift);
-      UnsignedIntType overflowCheck(value << shift);
+        // Assume an 8 bit byte;
+        // Check the seven data bitsbit to make sure no significant
+        // information is lost.
+        unsigned short shift = ((sizeof(UnsignedIntType) * byteSize) / dataShift) * dataShift;
+        UnsignedIntType overflowMask(UnsignedIntType(-1) << shift);
+        UnsignedIntType overflowCheck(value << shift);
 
-      while((byte & stopBit) == 0)
-      {
+        while((byte & stopBit) == 0)
+        {
+            if(!ignoreOverflow && (value & overflowMask) != overflowCheck)
+            {
+                context.reportError("[ERR D2]", "Unsigned Integer Field overflow...", name);
+            }
+            
+            value <<= dataShift;
+            value  |= byte;
+            if (!source.getByte(byte))
+            {
+                context.reportFatal("[ERR U03]", "End of file without stop bit decoding unsigned integer.", name);
+            }
+        }
+        
         if(!ignoreOverflow && (value & overflowMask) != overflowCheck)
         {
-          context.reportError("[ERR D2]", "Unsigned Integer Field overflow...", name);
+            context.reportError("[ERR D2]", "Unsigned Integer Field overflow..", name);
         }
+        
         value <<= dataShift;
-        value |= byte;
-        if(!source.getByte(byte))
-        {
-          context.reportFatal("[ERR U03]", "End of file without stop bit decoding unsigned integer.", name);
-        }
-      }
-      if(!ignoreOverflow && (value & overflowMask) != overflowCheck)
-      {
-        context.reportError("[ERR D2]", "Unsigned Integer Field overflow..", name);
-      }
-      value <<= dataShift;
-      value |= (byte & dataBits);
+        value |= (byte & dataBits);
     }
-  }
+
+}
 }
 #endif // FIELDINSTRUCTION_H

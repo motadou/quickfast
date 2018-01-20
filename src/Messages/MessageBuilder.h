@@ -11,23 +11,22 @@
 #include <Messages/ValueMessageBuilder.h>
 #include <Messages/MessageField.h>
 //#include <Common/Logger.h>
-namespace QuickFAST{
-  namespace Messages{
+
+namespace QuickFAST { namespace Messages {
     /// @brief Interface to support building a message during decoding.
-    class QuickFAST_Export MessageBuilder : public ValueMessageBuilder
+class QuickFAST_Export MessageBuilder : public ValueMessageBuilder
+{
+public:
+    MessageBuilder();
+
+    virtual ~MessageBuilder(){};
+
+    /// @brief Write verbose information to ostream
+    /// @param vout is the stream to which to write.  0 disables verbosity.
+    void setVerbose(std::ostream * vout)
     {
-    public:
-
-      MessageBuilder();
-
-      virtual ~MessageBuilder(){};
-
-      /// @brief Write verbose information to ostream
-      /// @param vout is the stream to which to write.  0 disables verbosity.
-      void setVerbose(std::ostream * vout)
-      {
         vout_ = vout;
-      }
+    }
 
       /// @brief Add a field to the set.
       ///
@@ -51,7 +50,8 @@ namespace QuickFAST{
 
     private:
       std::ostream * vout_;
-    };
-  }
+};
+
+}
 }
 #endif // MESSAGEBUILDER_H

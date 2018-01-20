@@ -8,10 +8,11 @@
 #define FIELDINSTRUCTIONINT32_H
 #include <Codecs/FieldInstructionInteger.h>
 
-namespace QuickFAST{
-  namespace Codecs{
-    /// @brief An implementation for the &lt;int32> field instruction.
-    typedef FieldInstructionInteger<int32, ValueType::INT32, true> FieldInstructionInt32;
-  }
+namespace QuickFAST { namespace Codecs {
+
+/// @brief An implementation for the &lt;int32> field instruction.
+typedef FieldInstructionInteger<int32, ValueType::INT32, true> FieldInstructionInt32;
+
+}
 }
 #endif // FIELDINSTRUCTIONINT32_H

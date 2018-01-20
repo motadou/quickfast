@@ -58,10 +58,8 @@ namespace QuickFAST{
       virtual void addValue(const Messages::FieldIdentity & identity, ValueType::Type type, const uchar value);
       virtual void addValue(const Messages::FieldIdentity & identity, ValueType::Type type, const Decimal& value);
       virtual void addValue(const Messages::FieldIdentity & identity, ValueType::Type type, const unsigned char * value, size_t length);
-      virtual ValueMessageBuilder & startMessage(
-        const std::string & applicationType,
-        const std::string & applicationTypeNamespace,
-        size_t size);
+      
+      virtual ValueMessageBuilder & startMessage(const std::string & applicationType, const std::string & applicationTypeNamespace, size_t size);
       virtual bool endMessage(Messages::ValueMessageBuilder & messageBuilder);
       virtual bool ignoreMessage(Messages::ValueMessageBuilder & messageBuilder);
       virtual Messages::ValueMessageBuilder & startSequence(

@@ -50,35 +50,35 @@ public:
     /// Zero means no pmap bits were used.
     size_t encodeBytesNeeded()const;
 
-      /// @brief Encode this presence map into a data destination.
-      ///
-      /// @param destination where the data is written
-      void encode(DataDestination & destination);
+    /// @brief Encode this presence map into a data destination.
+    ///
+    /// @param destination where the data is written
+    void encode(DataDestination & destination);
 
-      /// @brief Stuff a raw representation of the presence map into this object.
-      ///
-      /// Intended for testing/debugging.  Avoid using this in production code.
-      /// @param buffer points to a presence map in "wire" format.
-      /// @param byteLength counts the BYTES in the buffer.
-      void setRaw(const uchar * buffer, size_t byteLength);
+    /// @brief Stuff a raw representation of the presence map into this object.
+    ///
+    /// Intended for testing/debugging.  Avoid using this in production code.
+    /// @param buffer points to a presence map in "wire" format.
+    /// @param byteLength counts the BYTES in the buffer.
+    void setRaw(const uchar * buffer, size_t byteLength);
 
-      /// @brief Peek at the raw representation of the presence map in this object.
-      ///
-      /// Intended for testing/debugging.  Avoid using this in production code.
-      /// @param[out] buffer will be set to point to a presence map in "wire" format
-      /// @param[out] byteLength will be set to the count of the BYTES in the buffer.
-      void getRaw(const uchar *& buffer, size_t &byteLength)const;
+    /// @brief Peek at the raw representation of the presence map in this object.
+    ///
+    /// Intended for testing/debugging.  Avoid using this in production code.
+    /// @param[out] buffer will be set to point to a presence map in "wire" format
+    /// @param[out] byteLength will be set to the count of the BYTES in the buffer.
+    void getRaw(const uchar *& buffer, size_t &byteLength)const;
 
-      /// @brief Reset the presence map to the first field with changing the actual map.
-      void rewind();
+    /// @brief Reset the presence map to the first field with changing the actual map.
+    void rewind();
 
-      /// @brief Check to see if the next field is present.
-      ///
-      /// Note this "consumes" a bit in the presence map.
-      /// Do not mix calls to setNextField() and checkNextField() without
-      /// an intervening rewind() or reset().
-      /// @returns true if the field is present.
-      bool checkNextField();
+    /// @brief Check to see if the next field is present.
+    ///
+    /// Note this "consumes" a bit in the presence map.
+    /// Do not mix calls to setNextField() and checkNextField() without
+    /// an intervening rewind() or reset().
+    /// @returns true if the field is present.
+    bool checkNextField();
 
       /// @brief Special support for Arca FAST-like (ish) encoding
       ///

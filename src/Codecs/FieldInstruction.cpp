@@ -278,14 +278,15 @@ FieldInstruction::checkEmptyAscii(WorkingBuffer & workingBuffer)
 bool
 FieldInstruction::checkNullAscii(WorkingBuffer & workingBuffer)
 {
-  // check for possible zeroPreamble on mandatory string
-  if(workingBuffer.size() > 0 && workingBuffer[0] == 0)
-  {
-    workingBuffer.pop_front();
-    // todo: check size == 0 || buffer[0] != 0
-    // to detect overlong encoding [ERR R9]
-  }
-  return workingBuffer.size() == 0;
+    // check for possible zeroPreamble on mandatory string
+    if (workingBuffer.size() > 0 && workingBuffer[0] == 0)
+    {
+        workingBuffer.pop_front();
+        // todo: check size == 0 || buffer[0] != 0
+        // to detect overlong encoding [ERR R9]
+    }
+    
+    return workingBuffer.size() == 0;
 }
 
 

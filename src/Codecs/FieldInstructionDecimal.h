@@ -19,9 +19,7 @@ namespace QuickFAST{
       /// @brief construct with a name and a namespace
       /// @param name is the local name
       /// @param fieldNamespace is the namespace to qualify this name
-      FieldInstructionDecimal(
-        const std::string & name,
-        const std::string & fieldNamespace);
+      FieldInstructionDecimal(const std::string & name, const std::string & fieldNamespace);
 
       /// @brief construct anonomous field instruction
       FieldInstructionDecimal();
@@ -42,8 +40,9 @@ namespace QuickFAST{
       /// @brief Get the mantissa field instruction.
       virtual bool getMantissaInstruction(FieldInstructionCPtr & mantissa) const
       {
-        mantissa = mantissaInstruction_;
-        return bool(mantissa);
+            mantissa = mantissaInstruction_;
+            
+            return bool(mantissa);
       }
 
       /// @brief Support &lt;exponent> element.

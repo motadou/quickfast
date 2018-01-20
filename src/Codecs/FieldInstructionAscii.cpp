@@ -33,32 +33,27 @@ FieldInstructionAscii::~FieldInstructionAscii()
 {
 }
 
-bool
-FieldInstructionAscii::decodeAsciiFromSource(
-  Codecs::DataSource & source,
-  bool mandatory,
-  WorkingBuffer & buffer) const
+bool FieldInstructionAscii::decodeAsciiFromSource(Codecs::DataSource & source, bool mandatory, WorkingBuffer & buffer) const
 {
-  PROFILE_POINT("ascii::decodeAsciiFromSource");
-  decodeAscii(source, buffer);
-  if(!mandatory)
-  {
-    if(checkNullAscii(buffer))
+    PROFILE_POINT("ascii::decodeAsciiFromSource");
+    decodeAscii(source, buffer);
+    if (!mandatory)
     {
-      return false;
+        if (checkNullAscii(buffer))
+        {
+            return false;
+        }
     }
-  }
-  if(checkEmptyAscii(buffer))
-  {
-    buffer.clear(true);
-  }
-  return true;
+    
+    if (checkEmptyAscii(buffer))
+    {
+        buffer.clear(true);
+    }
+    
+    return true;
 }
 
-void
-FieldInstructionAscii::decodeNop(
-  Codecs::DataSource & source,
-  Codecs::PresenceMap & /*pmap*/,
+void FieldInstructionAscii::decodeNop(Codecs::DataSource & source, Codecs::PresenceMap & /*pmap*/,
   Codecs::Decoder & decoder,
   Messages::ValueMessageBuilder & builder) const
 {
@@ -278,79 +273,71 @@ FieldInstructionAscii::decodeDelta(
   }
 }
 
-void
-FieldInstructionAscii::decodeTail(
-  Codecs::DataSource & source,
-  Codecs::PresenceMap & pmap,
-  Codecs::Decoder & decoder,
-  Messages::ValueMessageBuilder & builder) const
+void FieldInstructionAscii::decodeTail(Codecs::DataSource & source, Codecs::PresenceMap & pmap, Codecs::Decoder & decoder, Messages::ValueMessageBuilder & builder) const
 {
-  PROFILE_POINT("ascii::decodeTail");
-  if(pmap.checkNextField())
-  {
-    // field is in the stream, use it
-    WorkingBuffer & buffer = decoder.getWorkingBuffer();
-    if(decodeAsciiFromSource(source, isMandatory(), buffer))
+    PROFILE_POINT("ascii::decodeTail");
+    
+    if (pmap.checkNextField())
     {
-      const std::string tailValue(reinterpret_cast<const char *>(buffer.begin()), buffer.size());
-      size_t tailLength = tailValue.length();
-      std::string previousValue;
-      Context::DictionaryStatus previousStatus = fieldOp_->getDictionaryValue(decoder, previousValue);
-      if(previousStatus == Context::UNDEFINED_VALUE)
-      {
-        if(fieldOp_->hasValue())
+        // field is in the stream, use it
+        WorkingBuffer & buffer = decoder.getWorkingBuffer();
+        if (decodeAsciiFromSource(source, isMandatory(), buffer))
         {
-          previousValue = fieldOp_->getValue();
-          fieldOp_->setDictionaryValue(decoder, previousValue);
+            const std::string tailValue(reinterpret_cast<const char *>(buffer.begin()), buffer.size());
+            size_t tailLength = tailValue.length();
+            std::string previousValue;
+            Context::DictionaryStatus previousStatus = fieldOp_->getDictionaryValue(decoder, previousValue);
+            if (previousStatus == Context::UNDEFINED_VALUE)
+            {
+                if (fieldOp_->hasValue())
+                {
+                    previousValue = fieldOp_->getValue();
+                    
+                    fieldOp_->setDictionaryValue(decoder, previousValue);
+                }
+            }
+
+            size_t previousLength = previousValue.length();
+            if (tailLength > previousLength)
+            {
+                tailLength = previousLength;
+            }
+
+            std::string value(previousValue.substr(0, previousLength - tailLength) + tailValue);
+
+            builder.addValue(identity_, ValueType::ASCII, reinterpret_cast<const uchar *>(value.c_str()), value.size());
+            
+            fieldOp_->setDictionaryValue(decoder, value);
         }
-      }
-      size_t previousLength = previousValue.length();
-      if(tailLength > previousLength)
-      {
-        tailLength = previousLength;
-      }
-      std::string value(previousValue.substr(0, previousLength - tailLength) + tailValue);
-      builder.addValue(
-        identity_,
-        ValueType::ASCII,
-        reinterpret_cast<const uchar *>(value.c_str()),
-        value.size());
-      fieldOp_->setDictionaryValue(decoder, value);
+        else // null
+        {
+            fieldOp_->setDictionaryValueNull(decoder);
+        }
     }
-    else // null
+    else // pmap says not in stream
     {
-      fieldOp_->setDictionaryValueNull(decoder);
+        std::string previousValue;
+        Context::DictionaryStatus previousStatus = fieldOp_->getDictionaryValue(decoder, previousValue);
+        if (previousStatus == Context::OK_VALUE)
+        {
+            Messages::FieldCPtr field = Messages::FieldAscii::create(previousValue);
+
+            builder.addValue(identity_, ValueType::ASCII, reinterpret_cast<const uchar *>(previousValue.c_str()), previousValue.size());
+        }
+        else if(fieldOp_->hasValue())
+        {
+            builder.addValue(identity_, ValueType::ASCII, reinterpret_cast<const uchar *>(fieldOp_->getValue().c_str()), fieldOp_->getValue().size());
+            
+            fieldOp_->setDictionaryValue(decoder, fieldOp_->getValue());
+        }
+        else
+        {
+            if(isMandatory())
+            {
+                decoder.reportFatal("[ERR D6]", "No value available for mandatory copy field.", identity_);
+            }
+        }
     }
-  }
-  else // pmap says not in stream
-  {
-    std::string previousValue;
-    Context::DictionaryStatus previousStatus = fieldOp_->getDictionaryValue(decoder, previousValue);
-    if(previousStatus == Context::OK_VALUE)
-    {
-      Messages::FieldCPtr field = Messages::FieldAscii::create(previousValue);
-      builder.addValue(identity_,
-        ValueType::ASCII,
-        reinterpret_cast<const uchar *>(previousValue.c_str()),
-        previousValue.size());
-    }
-    else if(fieldOp_->hasValue())
-    {
-      builder.addValue(
-        identity_,
-        ValueType::ASCII,
-        reinterpret_cast<const uchar *>(fieldOp_->getValue().c_str()),
-        fieldOp_->getValue().size());
-      fieldOp_->setDictionaryValue(decoder, fieldOp_->getValue());
-    }
-    else
-    {
-      if(isMandatory())
-      {
-        decoder.reportFatal("[ERR D6]", "No value available for mandatory copy field.", identity_);
-      }
-    }
-  }
 }
 
 void

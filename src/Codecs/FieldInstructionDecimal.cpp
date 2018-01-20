@@ -289,22 +289,17 @@ FieldInstructionDecimal::encodeDecimal(
   encodeSignedInteger(destination, buffer, mantissa);
 }
 
-void
-FieldInstructionDecimal::encodeNop(
-  Codecs::DataDestination & destination,
-  Codecs::PresenceMap & pmap,
-  Codecs::Encoder & encoder,
-  const Messages::MessageAccessor & accessor) const
+void FieldInstructionDecimal::encodeNop(Codecs::DataDestination & destination, Codecs::PresenceMap & pmap, Codecs::Encoder & encoder, const Messages::MessageAccessor & accessor) const
 {
-  // get the value from the application data
-  Decimal value;
-  if(accessor.getDecimal(identity_, ValueType::DECIMAL, value))
-  {
-    exponent_t exponent = value.getExponent();
-    mantissa_t mantissa = value.getMantissa();
-
-    if(bool(exponentInstruction_))
+    // get the value from the application data
+    Decimal value;
+    if (accessor.getDecimal(identity_, ValueType::DECIMAL, value))
     {
+        exponent_t exponent = value.getExponent();
+        mantissa_t mantissa = value.getMantissa();
+
+        if (bool(exponentInstruction_))
+        {
       Messages::FieldCPtr exponentField(Messages::FieldInt32::create(exponent));
       Messages::SingleFieldAccessor exponentAccessor(exponentInstruction_->getIdentity(), exponentField);
 
