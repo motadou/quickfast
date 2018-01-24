@@ -19,52 +19,55 @@
 #include <Messages/Field_fwd.h>
 #include <Messages/FieldIdentity.h>
 #include <Common/Profiler.h>
-namespace QuickFAST{
-  namespace Messages{
-    /// @brief the representation of a field within a message.
-    class QuickFAST_Export MessageField
+
+namespace QuickFAST { namespace Messages{
+
+/// @brief the representation of a field within a message.
+class QuickFAST_Export MessageField
+{
+public:
+    /// @brief Construct from an identity and a typed value.
+    MessageField(const FieldIdentity & identity, const FieldCPtr & field) : identity_(identity), field_(field)
     {
-    public:
-      /// @brief Construct from an identity and a typed value.
-      MessageField(const FieldIdentity & identity, const FieldCPtr & field)
-        : identity_(identity)
-        , field_(field)
-      {
-      }
 
-      /// @brief copy constructor
-      /// @param rhs the source from which to copy
-      MessageField(const MessageField & rhs)
-        : identity_(rhs.identity_)
-        , field_(rhs.field_)
-      {
-      }
+    }
 
-    public:
+    /// @brief copy constructor
+    /// @param rhs the source from which to copy
+    MessageField(const MessageField & rhs) : identity_(rhs.identity_), field_(rhs.field_)
+    {
+    
+    }
 
-      /// @brief get the name of the field
-      /// @returns the fully qualified field name
-      const std::string name()const
-      {
+public:
+
+    /// @brief get the name of the field
+    /// @returns the fully qualified field name
+    const std::string name()const
+    {
         return identity_.name();
-      }
-      /// @brief get the identity of the field
-      /// @returns the identifying information for this field
-      const FieldIdentity & getIdentity()const
-      {
+    }
+    
+    /// @brief get the identity of the field
+    /// @returns the identifying information for this field
+    const FieldIdentity & getIdentity()const
+    {
         return identity_;
-      }
+    }
 
-      /// @brief get the value of the field
-      /// @returns  a pointer to the Field
-      const FieldCPtr & getField()const
-      {
+    /// @brief get the value of the field
+    /// @returns  a pointer to the Field
+    const FieldCPtr & getField()const
+    {
         return field_;
-      }
-    private:
-      const FieldIdentity & identity_;
-      FieldCPtr field_;
-    };
-  }
+    }
+
+private:
+    const FieldIdentity & identity_;
+    
+    FieldCPtr field_;
+};
+
+}
 }
 #endif // MESSAGEFIELD_H

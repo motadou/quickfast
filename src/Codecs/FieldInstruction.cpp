@@ -12,14 +12,14 @@
 using namespace ::QuickFAST;
 using namespace ::QuickFAST::Codecs;
 
-FieldInstruction::FieldInstruction(
-      const std::string & name, const std::string & fieldNamespace)
+FieldInstruction::FieldInstruction(const std::string & name, const std::string & fieldNamespace)
   : identity_(name, fieldNamespace)
   , fieldOp_(new FieldOpNop)
   , presenceMapBitsUsed_(0)
   , mandatory_(true)
   , ignoreOverflow_(false)
 {
+
 }
 
 FieldInstruction::FieldInstruction()
@@ -29,49 +29,48 @@ FieldInstruction::FieldInstruction()
   , mandatory_(true)
   , ignoreOverflow_(false)
 {
+
 }
 
 FieldInstruction::~FieldInstruction()
 {
+
 }
 
-void
-FieldInstruction::finalize(Codecs::TemplateRegistry & /*registry*/)
+void FieldInstruction::finalize(Codecs::TemplateRegistry & /*registry*/)
 {
-  presenceMapBitsUsed_ = 0;
-  /// Note: do not use fieldOp_ directly here.  GetFieldOp may resolve to a "subfield"
-  if(getFieldOp()->usesPresenceMap(isMandatory()))
-  {
-    presenceMapBitsUsed_ = 1;
-  }
+    presenceMapBitsUsed_ = 0;
+
+    /// Note: do not use fieldOp_ directly here.  GetFieldOp may resolve to a "subfield"
+    if (getFieldOp()->usesPresenceMap(isMandatory()))
+    {
+        presenceMapBitsUsed_ = 1;
+    }
 }
 
-bool
-FieldInstruction::isPossiblyRecursive() const
+bool FieldInstruction::isPossiblyRecursive() const
 {
-  return false;
+    return false;
 }
 
-void
-FieldInstruction::setPresence(bool mandatory)
+void FieldInstruction::setPresence(bool mandatory)
 {
-  mandatory_ = mandatory;
+    mandatory_ = mandatory;
 }
 
-void
-FieldInstruction::setIgnoreOverflow(bool ignoreOverflow)
+void FieldInstruction::setIgnoreOverflow(bool ignoreOverflow)
 {
-  ignoreOverflow_ = ignoreOverflow;
+    ignoreOverflow_ = ignoreOverflow;
 }
 
-void
-FieldInstruction::setFieldOp(FieldOpPtr fieldOp)
+void FieldInstruction::setFieldOp(FieldOpPtr fieldOp)
 {
-  fieldOp_ = fieldOp;
-  if(fieldOp->hasValue())
-  {
-    interpretValue(fieldOp->getValue());
-  }
+    fieldOp_ = fieldOp;
+    
+    if (fieldOp->hasValue())
+    {
+        interpretValue(fieldOp->getValue());
+    }
 }
 
 FieldOpCPtr
@@ -236,28 +235,27 @@ FieldInstruction::encodeTail(
   encoder.reportFatal("[ERR S2]", "Tail Field Operator not supported for this data type.", identity_);
 }
 
-bool
-FieldInstruction::decodeAscii(
-  Codecs::DataSource & source,
-  WorkingBuffer & workingBuffer)
+bool FieldInstruction::decodeAscii(Codecs::DataSource & source, WorkingBuffer & workingBuffer)
 {
-  workingBuffer.clear(false);
-  uchar byte = 0;
-  if(!source.getByte(byte))
-  {
-    return false;
-  }
-  while((byte & stopBit) == 0)
-  {
-    workingBuffer.push(byte);
-    if(!source.getByte(byte))
+    workingBuffer.clear(false);
+    uchar byte = 0;
+    if (!source.getByte(byte))
     {
-      // todo: exception?
-      return false;
+        return false;
     }
-  }
-  workingBuffer.push(byte & dataBits);
-  return true;
+    
+    while((byte & stopBit) == 0)
+    {
+        workingBuffer.push(byte);
+        if(!source.getByte(byte))
+        {
+            // todo: exception?
+            return false;
+        }
+    }
+    
+    workingBuffer.push(byte & dataBits);
+    return true;
 }
 
 bool
@@ -289,27 +287,20 @@ FieldInstruction::checkNullAscii(WorkingBuffer & workingBuffer)
     return workingBuffer.size() == 0;
 }
 
-
-void
-FieldInstruction::decodeByteVector(
-  Codecs::Context & decoder,
-  Codecs::DataSource & source,
-  const std::string & name,
-  WorkingBuffer & buffer,
-  size_t length)
+void FieldInstruction::decodeByteVector(Codecs::Context & decoder, Codecs::DataSource & source, const std::string & name, WorkingBuffer & buffer, size_t length)
 {
-  buffer.clear(false, length);
-  for(size_t pos = 0;
-    pos < length;
-    ++pos)
-  {
-    uchar byte = 0;
-    if(!source.getByte(byte))
+    buffer.clear(false, length);
+    
+    for(size_t pos = 0; pos < length; ++pos)
     {
-      decoder.reportFatal("[ERR U03]", "End of file: Too few bytes in ByteVector.", name);
+        uchar byte = 0;
+        if (!source.getByte(byte))
+        {
+            decoder.reportFatal("[ERR U03]", "End of file: Too few bytes in ByteVector.", name);
+        }
+
+        buffer.push(byte);
     }
-    buffer.push(byte);
-  }
 }
 
 void

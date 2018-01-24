@@ -28,28 +28,28 @@ public:
         vout_ = vout;
     }
 
-      /// @brief Add a field to the set.
-      ///
-      /// The FieldCPtr is copied, not the actual Field object.
-      /// @param identity identifies this field
-      /// @param value is the value to be assigned.
-      virtual void addField(const FieldIdentity & identity, const FieldCPtr & value) = 0;
+    /// @brief Add a field to the set.
+    ///
+    /// The FieldCPtr is copied, not the actual Field object.
+    /// @param identity identifies this field
+    /// @param value is the value to be assigned.
+    virtual void addField(const FieldIdentity & identity, const FieldCPtr & value) = 0;
 
-      //////////////////////////////////////////
-      // Partially Implement ValueMessageBuilder
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int64 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uint64 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int32 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uint32 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int16 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uint16 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int8 value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uchar value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const Decimal& value);
-      virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const unsigned char * value, size_t length);
+    //////////////////////////////////////////
+    // Partially Implement ValueMessageBuilder
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int64 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uint64 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int32 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uint32 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int16 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uint16 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const int8 value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const uchar value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const Decimal& value);
+    virtual void addValue(const FieldIdentity & identity, ValueType::Type type, const unsigned char * value, size_t length);
 
-    private:
-      std::ostream * vout_;
+private:
+    std::ostream * vout_;
 };
 
 }
